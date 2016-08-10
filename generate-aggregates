@@ -1,0 +1,15 @@
+#!/bin/es --
+
+here = `pwd	 
+path = ($here $path)
+
+for (g = `{find $1 -type f -name latest-contamination }) {    #`
+	f = `{dirname $g}	
+	if {access $f} {	
+		echo Generating aggregates for $f
+		cd $f	
+		$here/aggregate latest-contamination
+		cd $here
+	}
+}
+

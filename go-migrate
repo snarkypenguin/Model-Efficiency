@@ -1,0 +1,38 @@
+#!/bin/es --
+
+if {~ $#* 0 1 2 || ~ $1 -h --help} {
+	echo usage: $0 'N end [rundir [symmetric|asymmetric [currentlocation]]]'
+	exit 0
+}
+
+N = $1
+end = $2
+
+if {~ $#3 0} {
+	rundir = `pwd
+} {
+	rundir = $3
+}
+
+rundir = $3
+
+if {~ $#4 0} {
+	symmetry = symmetric
+} {
+	symmetry = $4
+}
+			 
+if {~ $#5 0} {
+	here = `pwd
+} {
+	here = $5
+}
+here=/home/gray/Study/playpen
+
+f = migrating
+mkdir -p $rundir/$f
+cd $rundir/$f
+echo -n Starting $f ... 
+$here/simulation -:d- individual mig N $N $symmetry complex end $end
+cd $here
+#echo \ finished  $f

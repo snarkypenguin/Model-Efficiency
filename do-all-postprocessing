@@ -1,0 +1,16 @@
+#!/bin/es --
+
+if {~ $#1 0 || ~ $#2 0} {
+	echo usage: $0 'ntrials dir [dir [dir... ] ]'
+	echo '    like' $0 '15 PopComparison Extraruns'
+	exit 1
+}
+
+list = `{find $*(2 ...) -name latest-contamination | xargs -L1 dirname | xargs -L1 dirname | xargs -L1 dirname | sort | uniq}  #`
+for (f = $list) {
+	 echo Processing $f
+	 ./generate-aggregates $f
+	 ./postprocessing $1 $f
+	 ./analyse-times $f
+}
+

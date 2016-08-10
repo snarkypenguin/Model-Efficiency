@@ -1,0 +1,54 @@
+#!/bin/es --
+if {~ $#* 0} {
+	echo 'You must specify a directory (dir) which contains sets of runs (dir/test-*/).'
+	echo $0 Asymmetric '            ... would be a good example'
+	exit 1
+} {
+	dir = $1
+}
+
+vars = (indiv-nomig migrating )
+
+output = $dir/Time.results 
+
+echo For Individual an mutating representations > $output
+
+for (f = $vars) {
+	echo -n analysing the time for $dir/.../$f ' ... '
+	#files = `{ls -1 $dir/test-*/$f/latest-times} #`
+	files = `{find $dir -wholename $f/latest-times} #`
+
+	if {~ $#files 0} {
+		echo Sorry, no files for $f.
+	} {
+		sum = `{grep Total $files | cut '-d ' -f5 | Sum} #`
+		echo -n sum ...
+		count = `{grep Total $files | cut '-d ' -f5 | wc -l} #`
+		echo -n count ...
+		mean = `{calc $sum/$count} #`
+		echo mean ...
+	
+		echo mean $f $mean >> $output
+
+		variance = `{grep Total $files | cut '-d ' -f5 | Variance $mean} #`
+		echo variance
+		echo stddev $f  `{sqrt $variance} >> $output #`
+		echo>>$output
+	}
+}
+
+f = pop-nomig
+
+echo population
+
+files = `{find $dir -wholename $f/latest-times} #`
+if {~ $#files 0} {
+	echo Sorry, no files for $f. Cannot analyse the times
+} {
+	sum = `{grep Total $files | cut '-d ' -f5 | Sum} #`
+	count = `{grep Total $files | cut '-d ' -f5 | wc -l} #`
+
+	echo mean $f `{calc $sum/$count} >> $output
+}
+
+

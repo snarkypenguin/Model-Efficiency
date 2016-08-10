@@ -1,0 +1,57 @@
+#!/bin/es --
+GAMBCOPTS = -:m200000
+
+path = (/home/gray/Study/playpen /home/gray/Study/playpen/scripts $path)
+
+N = 10
+end = 3653
+
+if {~ $#1 0} {
+	 tag = `{date +%Y-%m-%d.%X}
+	 rundir = Go-^$tag
+	 echo You did not specify a directory, using $rundir
+} {~ $1 0* 1* 2* 3* 4* 5* 6* 7* 8* 9*} {
+	 rundir = Run-^$1
+} {
+	 rundir = $1
+}
+
+
+if {! ~ $#2 0} {
+	 N = $2
+}
+
+if {! ~ $#3 0} {
+	 end = $3
+}
+
+here = `pwd
+symmetry = symmetric
+
+
+%background {
+	 touch locked.1
+	 go-individual $N $end $symmetry $rundir $here
+	 rm locked.1
+}
+
+%background {
+	 touch locked.2
+	 go-migrate $N $end $symmetry $rundir $here
+	 rm locked.2
+}
+
+while {~ 0 <={access locked.1} && ~ 0 <={access locked.2}} {
+  if {~ 1 2} {
+	 go-individual $N $end $symmetry $rundir $here
+  }
+}
+
+reset
+
+rm Latest
+ln -s $rundir Latest
+
+#../simulation population nomig N 100 end 3650 complex symmetric
+#../simulation individual N 100 nomig end 3650 complex symmetric
+#../simulation individual migrate N 100 end 3650 complex symmetric

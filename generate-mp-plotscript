@@ -1,0 +1,21 @@
+#!/bin/es --
+
+file = /data/study/playpen/gnuplot-scripts/plot-m-p
+cat <<EOB > $file
+set nokey
+plot "<echo 0 0" using 1:2 with dots
+EOB
+
+#for  (f = test-*/indiv-nomig) {
+#	  echo replot "^$f^/latest-contamination" using 2:5 with dots >> $file
+#}
+
+for  (f = test-*/migrating) {
+	  echo replot "^$f^/latest-contamination" using 2:5 with dots >> $file
+}
+
+for  (f = test-*/pop-nomig) {
+	  echo replot "^$f^/latest-contamination" using 2:5 with points >> $file
+}
+
+

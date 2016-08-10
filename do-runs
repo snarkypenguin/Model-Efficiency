@@ -1,0 +1,19 @@
+#!/bin/es --
+
+NDAYS = 4383
+NI = 40
+
+fn yo n {
+	./go-migrate $NI $NDAYS test-^$n &
+	./go-individual $NI $NDAYS test-^$n
+}
+
+for (f = `{range 1 39 2}) {
+	 g = `{calc $f + 1}
+	 echo starting set $f $g
+	 ./go-migrate $NI $NDAYS test-^$f  asymmetric &
+	 ./go-migrate $NI $NDAYS test-^$g  asymmetric
+	 echo done.
+}
+echo finished with the run
+

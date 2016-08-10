@@ -1,0 +1,78 @@
+#!/bin/es --
+
+cat $1 | gawk -- 'BEGIN {printf("(\n"); N = 0; P = 0; psum = 0; Psum = 0; isum = 0; this_time = -1; last_time = -1;}
+function max(x,y) {
+	if (x >= y) return x;
+	return y;
+}
+
+/^individual/{
+	last_time = this_time;
+	last_dt = this_dt;
+
+	this_time = $2;
+	this_dt = $3;
+
+	if (last_dt < 0) last_dt = this_dt;
+
+	if (last_time != this_time) {
+		K = N+P;
+		if (K != 0) {
+			c = isum + psum;
+			C = Isum + Psum;
+			printf("(aggregate %s %s %f %f %d 0. 0. 0.)\n", last_time, last_dt, c/K, C/K, K);
+		}
+		N = 1.0;
+		isum = $4;
+		Isum = $5;
+		P = 0.0;
+		psum = 0;
+		Psum = 0;
+	}
+	else {
+		N++;
+		isum += $4;
+		Isum += $5;
+		last_dt = $3;
+	}
+}
+
+/^population/{
+	last_time = this_time;
+	last_dt = this_dt;
+
+	this_time = $2;
+	this_dt = $3;
+
+	if (last_dt < 0) last_dt = this_dt;
+
+	if (last_time != this_time) {
+		K = N+P;
+		if (K != 0) {
+			c = isum + psum;
+			C = Isum + Psum;
+			printf("(aggregate %s %s %f %f %d 0. 0. 0.)\n", last_time, last_dt, c/K, C/K, K);
+		}
+		N = 0.0;
+		isum = 0;
+		Isum = 0;
+		P = $6;
+		psum = $4 * $6;
+		Psum = $5 * $6;
+	}
+	else {
+		P += $6; 
+		psum += $4 * $6;
+		Psum += $5 * $6;
+		last_dt = $3;
+	}
+}
+END {
+		K = N+P;
+		c = isum + psum;
+		C = Isum + Psum;
+
+		if (P+N > 0) printf("(aggregate %s %s %f %f %d 0. 0. 0.)\n", this_time, last_dt, c/K, C/K, K);
+		printf(")\n");
+} '  > aggregate-contamination
+
